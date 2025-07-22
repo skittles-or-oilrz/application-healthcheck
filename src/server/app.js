@@ -1,4 +1,4 @@
-import { runAllAssetChecks } from '../server/assetChecks/actions/runAssetChecks.js';
+import { runAllAssetChecks } from './assetChecks/actions/runAssetChecks.js';
 import httpshutdown from 'http-shutdown'; //.extend()
 
 import config from 'config';
