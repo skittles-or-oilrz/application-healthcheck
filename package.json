@@ -8,10 +8,10 @@
     "> 0.5%, last 2 versions, not dead"
   ],
   "scripts": {
-    "start": "npm run ./index.js",
-    "develop": "export NODE_ENV=development; nodemon index.js",
-    "test": "export NODE_ENV=test; jest --forceExit --detectOpenHandles --watchAll",
-    "test:coverage": "export NODE_ENV=test; jest --coverage  --forceExit --detectOpenHandles",
+    "start": "node index.js",
+    "develop": "NODE_ENV=development nodemon index.js",
+    "test": "NODE_ENV=test jest --forceExit --detectOpenHandles --watchAll",
+    "test:coverage": "NODE_ENV=test jest --coverage --forceExit --detectOpenHandles",
     "client:develop": "parcel watch src/client/index.html"
   },
   "author": "Chris Adams",
