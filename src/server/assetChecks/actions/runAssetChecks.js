@@ -38,31 +38,21 @@ async function runSingleCheck(checkToRun, log = logger) {
 }
 
 async function runAllAssetChecks(log = logger) {
-
-  return await runAllAssetChecksFromArray(Config.get('healthcheck.items'), log);
-
+  return runAllAssetChecksFromArray(Config.get('healthcheck.items'), log);
 }
 
 async function runAllAssetChecksFromArray(items, log = logger) {
-
   const AssetArray = AssetFactory.createAssetList(items);
 
-  const promiseArray = AssetArray.map(item => (runSingleCheck(item, log)));
+  const promiseArray = AssetArray.map((item) => runSingleCheck(item, log));
   const results = await Promise.all(promiseArray);
-
-  let returnArray = [];
-
-  results.forEach(element => returnArray.push(element));
 
   const time = Date.now();
 
-  let obj = {
+  return {
     timestamp: time,
-    items: returnArray
+    items: results,
   };
-
-  return returnArray;
-
 }
 
 async function runAssetCheckById(id, log = logger) {
@@ -99,5 +89,5 @@ export {
   runAllAssetChecks,
   runAssetCheckByIdFromArray,
   runAssetCheckByNameFromArray,
-  runAllAssetChecksFromArray
+  runAllAssetChecksFromArray,
 };
