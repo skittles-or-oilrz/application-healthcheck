@@ -1,8 +1,4 @@
-
 import AssetFactory from '../../assets/classes/assetFactory.js';
-import WebsiteAssetClass from '../../assets/classes/websiteAsset.js';
-import WebServiceAssetClass from '../../assets/classes/webServiceAsset.js';
-import ServerAssetClass from '../../assets/classes/serverAsset.js';
 import Config from 'config';
 import { getAssetByIdFromArray, getAssetByNameFromArray } from '../../assets/actions/getAssets.js';
 import { makeHttpRequest } from '../classes/websiteCheck.js';
@@ -13,28 +9,23 @@ import logger from '../../common/logger.js';
 import resultsLogger from '../../common/resultsLogger.js';
 
 async function runSingleCheck(checkToRun, log = logger) {
-
-  let response = {};
-
-  if (checkToRun.getCheckType() === 'website') {
-
-    const websiteAsset = new WebsiteAssetClass(checkToRun);
-    response = await makeHttpRequest(websiteAsset, log);
-
-  } else if (checkToRun.getCheckType() === 'webservice') {
-
-    const webServiceAsset = new WebServiceAssetClass(checkToRun);
-    response = await makeWebServiceRequest(webServiceAsset, log);
-
-  } else if (checkToRun.getCheckType() === 'server') {
-
-    const serverAsset = new ServerAssetClass(checkToRun);
-    response = await makeServerRequest(serverAsset, log);
-
+  if (!checkToRun || typeof checkToRun.getCheckType !== 'function') {
+    return { error: 'Asset not found or invalid' };
   }
 
-  return response;
+  const type = checkToRun.getCheckType();
 
+  if (type === 'website') {
+    return makeHttpRequest(checkToRun, log);
+  }
+  if (type === 'webservice') {
+    return makeWebServiceRequest(checkToRun, log);
+  }
+  if (type === 'server') {
+    return makeServerRequest(checkToRun, log);
+  }
+
+  return { error: `Unknown check type: ${type}` };
 }
 
 async function runAllAssetChecks(log = logger) {
@@ -56,30 +47,19 @@ async function runAllAssetChecksFromArray(items, log = logger) {
 }
 
 async function runAssetCheckById(id, log = logger) {
-
-  let result = await runAssetCheckByIdFromArray(Config.get('healthcheck.items'), id, log);
-
-  //return result.toJson();
-  return result;
-
+  return runAssetCheckByIdFromArray(Config.get('healthcheck.items'), id, log);
 }
 
 async function runAssetCheckByIdFromArray(healthcheckItems, id, log = logger) {
-
-  return await runSingleCheck(getAssetByIdFromArray(healthcheckItems, id), log);
-
+  return runSingleCheck(getAssetByIdFromArray(healthcheckItems, id), log);
 }
 
 async function runAssetCheckByName(name, log = logger) {
-
-  return await runAssetCheckByNameFromArray(Config.get('healthcheck.items'), name, log);
-
+  return runAssetCheckByNameFromArray(Config.get('healthcheck.items'), name, log);
 }
 
 async function runAssetCheckByNameFromArray(healthcheckItems, name, log = logger) {
-
-  return await runSingleCheck(getAssetByNameFromArray(healthcheckItems, name), log);
-
+  return runSingleCheck(getAssetByNameFromArray(healthcheckItems, name), log);
 }
 
 export {
