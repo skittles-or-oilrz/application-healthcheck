@@ -29,8 +29,9 @@ async function makeHttpRequest(requestObj, log) {
 
     const end = Date.now() - start;
 
-    requestObj.setActualResponseCode(error.message);
+    requestObj.setActualResponseCode(error.statusCode || error.message);
     requestObj.setActualResponseTime(end);
+    requestObj.setTimestamp(Date.now());
 
     log.error(`Error - ${requestObj.getResponseSummaryMessage()}`);
 

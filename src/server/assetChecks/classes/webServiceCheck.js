@@ -22,6 +22,7 @@ async function makeWebServiceRequest(requestObj, log) {
 
     requestObj.setActualResponseCode(responseObject.statusCode);
     requestObj.setActualResponseTime(end);
+    requestObj.setTimestamp(Date.now());
 
     log.info(requestObj.getResponseSummaryMessage());
 
@@ -30,8 +31,9 @@ async function makeWebServiceRequest(requestObj, log) {
   } catch (error) {
     const end = Date.now() - start;
 
-    requestObj.setActualResponseCode(error.message);
+    requestObj.setActualResponseCode(error.statusCode || error.message);
     requestObj.setActualResponseTime(end);
+    requestObj.setTimestamp(Date.now());
 
     log.error(`Error - ${requestObj.getResponseSummaryMessage()}`);
 
