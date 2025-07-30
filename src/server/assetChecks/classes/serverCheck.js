@@ -1,5 +1,6 @@
 //const ping = require('ping');
 import ping from 'ping';
+import resultsLogger from '../../common/resultsLogger.js';
 
 async function makeServerRequest(requestObj, log) {
 
@@ -28,6 +29,7 @@ async function makeServerRequest(requestObj, log) {
     }
 
     log.info(requestObj.getResponseSummaryMessage());
+    resultsLogger.info(JSON.stringify(requestObj.toJson()));
 
     return requestObj;
 
@@ -37,6 +39,7 @@ async function makeServerRequest(requestObj, log) {
     requestObj.setActualResponseTime(0);
 
     log.error(`Error - ${requestObj.getResponseSummaryMessage()}`);
+    resultsLogger.info(JSON.stringify(requestObj.toJson()));
 
     return requestObj;
   }

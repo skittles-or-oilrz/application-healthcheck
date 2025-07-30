@@ -1,5 +1,6 @@
 //const rp = require('request-promise');
 import rp from 'request-promise';
+import resultsLogger from '../../common/resultsLogger.js';
 
 async function makeWebServiceRequest(requestObj, log) {
 
@@ -25,6 +26,7 @@ async function makeWebServiceRequest(requestObj, log) {
     requestObj.setTimestamp(Date.now());
 
     log.info(requestObj.getResponseSummaryMessage());
+    resultsLogger.info(JSON.stringify(requestObj.toJson()));
 
     return requestObj;
 
@@ -36,6 +38,7 @@ async function makeWebServiceRequest(requestObj, log) {
     requestObj.setTimestamp(Date.now());
 
     log.error(`Error - ${requestObj.getResponseSummaryMessage()}`);
+    resultsLogger.info(JSON.stringify(requestObj.toJson()));
 
     return requestObj;
   }

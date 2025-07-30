@@ -6,7 +6,6 @@ import { makeWebServiceRequest } from '../classes/webServiceCheck.js';
 import { makeServerRequest } from '../classes/serverCheck.js';
 
 import logger from '../../common/logger.js';
-import resultsLogger from '../../common/resultsLogger.js';
 
 async function runSingleCheck(checkToRun, log = logger) {
   if (!checkToRun || typeof checkToRun.getCheckType !== 'function') {
