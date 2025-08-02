@@ -31,8 +31,6 @@
     "react-router-dom": "^6.4.1",
     "react-test-renderer": "^18.2.0",
     "recharts": "^2.1.14",
-    "request": "^2.88.2",
-    "request-promise": "^4.2.5",
     "socket.io": "^4.5.2",
     "socket.io-client": "^4.5.2",
     "styled-components": "^5.3.5",

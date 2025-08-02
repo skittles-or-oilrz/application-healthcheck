@@ -1,24 +1,22 @@
-//const rp = require('request-promise');
-import rp from 'request-promise';
+import axios from 'axios';
 import resultsLogger from '../../common/resultsLogger.js';
 
 async function makeHttpRequest(requestObj, log) {
-
-  const options = {
-    uri: requestObj.url,
-    resolveWithFullResponse: true,
-    timeout: 10000,
-  };
-
   const start = Date.now();
 
   try {
     log.info(`Running Website check ${requestObj.name}.`);
 
-    const responseObject = await rp(options);
+    const response = await axios({
+      url: requestObj.url,
+      method: 'GET',
+      timeout: 10000,
+      validateStatus: () => true,
+    });
+
     const end = Date.now() - start;
 
-    requestObj.setActualResponseCode(responseObject.statusCode);
+    requestObj.setActualResponseCode(response.status);
     requestObj.setActualResponseTime(end);
     requestObj.setTimestamp(Date.now());
 
@@ -26,12 +24,10 @@ async function makeHttpRequest(requestObj, log) {
     resultsLogger.info(JSON.stringify(requestObj.toJson()));
 
     return requestObj;
-
   } catch (error) {
-
     const end = Date.now() - start;
 
-    requestObj.setActualResponseCode(error.statusCode || error.message);
+    requestObj.setActualResponseCode(error.response?.status || error.message);
     requestObj.setActualResponseTime(end);
     requestObj.setTimestamp(Date.now());
 
