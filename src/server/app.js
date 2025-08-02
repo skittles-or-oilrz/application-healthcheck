@@ -57,13 +57,17 @@ export default class WebServer {
           socket.broadcast.emit('message', 'Another client has just connected!');
         });
 
-        checkInterval = setInterval(() => {
+        const intervalMs = config.get('healthcheck.options.checkIntervalMs') || 300000;
+
+        checkInterval = setInterval(async () => {
           log.info('Running scheduled checks');
-          (async () => {
+          try {
             const scheduledResult = await runAllAssetChecks(log);
             io.emit('data', JSON.stringify(scheduledResult));
-          })();
-        }, 300000);
+          } catch (err) {
+            log.error(`Scheduled check failed: ${err.message || err}`);
+          }
+        }, intervalMs);
 
         resolve();
       }).on('error', (e) => {

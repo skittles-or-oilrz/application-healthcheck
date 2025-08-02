@@ -7,7 +7,8 @@
       "resultLogFolder": "devresults",
       "resultLogName": "dev",
       "menutitle": "Application Healthcheck",
-      "footertext": "Designed and built by..."
+      "footertext": "Designed and built by...",
+      "checkIntervalMs": 300000
     },
     "dashboardConfig": {
       "dashboardTitle": "Application Dashboard",
