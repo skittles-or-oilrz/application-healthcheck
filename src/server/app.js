@@ -18,6 +18,26 @@ let state = 'Shutdown';
 let io;
 let checkInterval;
 
+function validateConfig(log) {
+  const items = config.get('healthcheck.items') || [];
+  const required = ['key', 'name', 'checkType', 'url'];
+  let invalid = 0;
+
+  items.forEach((item, idx) => {
+    const missing = required.filter((k) => item[k] === undefined || item[k] === null || item[k] === '');
+    if (missing.length) {
+      invalid += 1;
+      log.error(`Config item[${idx}] missing required fields: ${missing.join(', ')}`);
+    }
+  });
+
+  if (invalid) {
+    log.warn(`${invalid} invalid config item(s) detected. They may fail at check time.`);
+  } else {
+    log.info('Config validation passed.');
+  }
+}
+
 export default class WebServer {
   constructor(log) {
     this.log = log;
@@ -25,6 +45,7 @@ export default class WebServer {
 
   init() {
     this.log.info('Initialising Web Server');
+    validateConfig(this.log);
   }
 
   start() {
