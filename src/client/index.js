@@ -1,7 +1,5 @@
 import React from 'react';
-import { render } from 'react-dom';
-import { createRoot } from 'react-dom/client';
-import { HashRouter as Router, Route , Routes} from 'react-router-dom';
+import { HashRouter as Router, Route, Routes } from 'react-router-dom';
 import { getLandscapes } from './common/apiFunctions';
 import LandscapeMonitor from './views/landscapeMonitor.jsx';
 import Home from './views/home.jsx';
@@ -10,8 +8,8 @@ import List from './views/list';
 import Layout from './views/layout';
 import LiveView from './views/liveView';
 import SingleCheckMonitor from './views/singleCheckMonitor';
-
 import { createRoot } from 'react-dom/client';
+
 const container = document.getElementById('app');
 const root = createRoot(container);
  //       render={(props) => <LandscapeMonitor {...props} landscape={landscape} />}
