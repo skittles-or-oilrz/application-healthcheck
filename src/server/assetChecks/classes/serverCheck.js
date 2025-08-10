@@ -1,49 +1,65 @@
-//const ping = require('ping');
-import ping from 'ping';
+import net from 'net';
 import resultsLogger from '../../common/resultsLogger.js';
 
+/**
+ * TCP connect check (no CAP_NET_RAW required).
+ * Treats successful connection as 200, failure as 500.
+ */
 async function makeServerRequest(requestObj, log) {
-
   const start = Date.now();
+  const timeoutMs = 2500;
 
-  try {
-
-    if(requestObj.url.length == 0){
-      throw new Error('No URL');
+  return new Promise((resolve) => {
+    if (!requestObj.url || requestObj.url.length === 0) {
+      requestObj.setActualResponseCode('No URL');
+      requestObj.setActualResponseTime(0);
+      requestObj.setTimestamp(Date.now());
+      log.error(`Error - ${requestObj.getResponseSummaryMessage()}`);
+      resultsLogger.info(JSON.stringify(requestObj.toJson()));
+      return resolve(requestObj);
     }
 
-    const response = await ping.promise.probe(requestObj.url, { timeout: 2.5 });
-    const end = Date.now() - start;
-    const status = response.alive ? 200 : 500;
-
-    if (status === 200) {
-      log.info(`    Called ${requestObj.name}.  Response Code : ${status}.  Response Time : ${response.max}.`);
-      requestObj.setActualResponseCode(status);
-      requestObj.setActualResponseTime(parseFloat(response.max));
-      requestObj.setTimestamp(Date.now());
-    } else {
-      log.info(`    Called ${requestObj.name}.  Response Code : ${status}.  Response Time : ${end}.`);
-      requestObj.setActualResponseCode(status);
-      requestObj.setActualResponseTime(end);
-      requestObj.setTimestamp(Date.now());
+    // Default to port 80 if none provided; accept host or host:port
+    let host = requestObj.url;
+    let port = 80;
+    if (host.includes(':')) {
+      const parts = host.split(':');
+      host = parts[0];
+      port = parseInt(parts[1], 10) || 80;
     }
 
-    log.info(requestObj.getResponseSummaryMessage());
-    resultsLogger.info(JSON.stringify(requestObj.toJson()));
+    const socket = new net.Socket();
+    let settled = false;
 
-    return requestObj;
+    const finish = (code, time) => {
+      if (settled) return;
+      settled = true;
+      socket.destroy();
+      requestObj.setActualResponseCode(code);
+      requestObj.setActualResponseTime(time);
+      requestObj.setTimestamp(Date.now());
+      log.info(requestObj.getResponseSummaryMessage());
+      resultsLogger.info(JSON.stringify(requestObj.toJson()));
+      resolve(requestObj);
+    };
 
-  } catch (error) {
+    socket.setTimeout(timeoutMs);
 
-    requestObj.setActualResponseCode(error.message);
-    requestObj.setActualResponseTime(0);
+    socket.on('connect', () => {
+      finish(200, Date.now() - start);
+    });
 
-    log.error(`Error - ${requestObj.getResponseSummaryMessage()}`);
-    resultsLogger.info(JSON.stringify(requestObj.toJson()));
+    socket.on('timeout', () => {
+      finish(500, Date.now() - start);
+    });
 
-    return requestObj;
-  }
+    socket.on('error', (err) => {
+      log.error(`Server check error for ${requestObj.name}: ${err.message}`);
+      finish(500, Date.now() - start);
+    });
 
+    socket.connect(port, host);
+  });
 }
 
-export { makeServerRequest};
+export { makeServerRequest };
